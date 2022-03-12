@@ -12,12 +12,28 @@ const Login = (props) => {
   const [formIsValid, setFormIsValid] = useState(false);
 
   useEffect(() => {
-    setFormIsValid(
-      enteredEmail.includes('@') && enteredPassword.trim().length > 6
-    );
+    const timerIdentifier = setTimeout(() => {
+      console.log('check form validity');
+      setFormIsValid( enteredEmail.includes('@') && enteredPassword.trim().length > 6);
+    }, 500);
+
+    // useEffect gives us a facility to return a function after successful execution
+    // this returned function is called as a cleanup function.
+    // it runs as a cleanup process, before the useEffect function runs again the next time.
+    // cleanup function doesn't run before the main function only when the main function is
+    // ran for the first time, after that for every run of main function, cleanup function
+    // is made to run before it.
+    // in addition, cleanup function also runs when the component unmounts from the DOM.
+    return () => {
+      console.log('cleanup!!');
+      clearTimeout(timerIdentifier);
+    };
   }, [enteredEmail, enteredPassword]);
   // checking and updating form validity after every keystroke is another example of we handling
   // side effect of a user action
+  // now, we do not want to check form validity after every keystroke (imagine it to be an API call)
+  // so, we want to wait until user stops typing then check if input is valid. This is called debouncing.
+  // 
 
   const emailChangeHandler = (event) => {
     setEnteredEmail(event.target.value);
