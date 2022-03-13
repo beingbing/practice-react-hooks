@@ -87,3 +87,10 @@ component to be re-evaluated
 
 setTimeout is NOT added as a dependency because it's a built-in API (built-into the browser) - it's 
 independent from React and your components, it doesn't change
+
+
+# useReducer
+
+When you need to handle more complicated state which has multiple ways of changing or got multiple 
+dependencies instead of single variables (like we do with useState) then we go for useReducer.
+
