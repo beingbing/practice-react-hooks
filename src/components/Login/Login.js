@@ -1,39 +1,40 @@
-import React, { useState, useEffect, useReducer, useContext } from 'react';
+import React, { useState, useEffect, useReducer, useContext, useRef } from "react";
 
-import Card from '../UI/Card/Card';
-import classes from './Login.module.css';
-import Button from '../UI/Button/Button';
-import AuthContext from '../../store/auth-context';
+import Card from "../UI/Card/Card";
+import classes from "./Login.module.css";
+import Button from "../UI/Button/Button";
+import AuthContext from "../../store/auth-context";
+import Input from "../UI/Input/input";
 
 // useReducer look
 //             dispatch new action   (prvState, action)
 // const [state, dispatchFn] = useReducer(reducerFn, initialState, initFn);
 
 // it do not need any data generate inside component function
-// hence it is kept outside of component scope. All the data 
+// hence it is kept outside of component scope. All the data
 // needed for this reducer function to work will be given to
 // it by React automatically.
 const emailReducer = (state, action) => {
   console.log("state: ", state, action);
-  if (action.type === 'USER_INPUT') {
-    return {value: action.val, isValid: action.val.includes('@')};
+  if (action.type === "USER_INPUT") {
+    return { value: action.val, isValid: action.val.includes("@") };
   }
-  if (action.type === 'INPUT_BLUR') {
-    return {value: state.value, isValid: state.value.includes('@')};
+  if (action.type === "INPUT_BLUR") {
+    return { value: state.value, isValid: state.value.includes("@") };
   }
-  return {value: '', isValid: false};
+  return { value: "", isValid: false };
 };
 
 const passwordReducer = (state, action) => {
   console.log("passwordReducer: ", state, action);
-  if (action.type === 'USER_INPUT') {
-    return {value: action.val, isValid: action.val.trim().length > 6};
+  if (action.type === "USER_INPUT") {
+    return { value: action.val, isValid: action.val.trim().length > 6 };
   }
-  if (action.type === 'INPUT_BLUR') {
-    return {value: state.value, isValid: state.value.trim().length > 6};
+  if (action.type === "INPUT_BLUR") {
+    return { value: state.value, isValid: state.value.trim().length > 6 };
   }
-  return {value: '', isValid: false};
-}
+  return { value: "", isValid: false };
+};
 
 const Login = (props) => {
   // const [enteredEmail, setEnteredEmail] = useState('');
@@ -45,15 +46,24 @@ const Login = (props) => {
 
   const [formIsValid, setFormIsValid] = useState(false);
 
-  const [emailState, dispatchEmail] = useReducer(emailReducer, {value: '', isValid: true});
-  const [passwordState, dispatchPassword] = useReducer(passwordReducer, {value: '', isValid: true});
+  const [emailState, dispatchEmail] = useReducer(emailReducer, {
+    value: "",
+    isValid: true,
+  });
+  const [passwordState, dispatchPassword] = useReducer(passwordReducer, {
+    value: "",
+    isValid: true,
+  });
 
   const { isValid: emailIsValid } = emailState;
   const { isValid: passwordIsValid } = passwordState;
 
+  const emailInputRef = useRef();
+  const pwdInputRef = useRef();
+
   useEffect(() => {
     const timerIdentifier = setTimeout(() => {
-      console.log('check form validity');
+      console.log("check form validity");
       setFormIsValid(emailIsValid && passwordIsValid);
     }, 500);
 
@@ -65,7 +75,7 @@ const Login = (props) => {
     // is made to run before it.
     // in addition, cleanup function also runs when the component unmounts from the DOM.
     return () => {
-      console.log('cleanup!!');
+      console.log("cleanup!!");
       clearTimeout(timerIdentifier);
     };
   }, [emailIsValid, passwordIsValid]);
@@ -73,11 +83,11 @@ const Login = (props) => {
   // side effect of a user action
   // now, we do not want to check form validity after every keystroke (imagine it to be an API call)
   // so, we want to wait until user stops typing then check if input is valid. This is called debouncing.
-  // 
+  //
 
   const emailChangeHandler = (event) => {
     // setEnteredEmail(event.target.value);
-    dispatchEmail({type: 'USER_INPUT', val: event.target.value});
+    dispatchEmail({ type: "USER_INPUT", val: event.target.value });
     // setFormIsValid( emailState.isValid && passwordState.isValid);
   };
   // here, as we can see, formIsValid state is dependent upon two other states, and not on
@@ -89,59 +99,57 @@ const Login = (props) => {
 
   const passwordChangeHandler = (event) => {
     // setEnteredPassword(event.target.value);
-    dispatchPassword({type: 'USER_INPUT', val: event.target.value});
+    dispatchPassword({ type: "USER_INPUT", val: event.target.value });
     // setFormIsValid( emailState.isValid && passwordState.isValid);
   };
 
   const validateEmailHandler = () => {
     // setEmailIsValid(emailState.isValid);
-    dispatchEmail({type: 'INPUT_BLUR'});
+    dispatchEmail({ type: "INPUT_BLUR" });
   };
   // also we are individually checking their individual validity too.
 
   const validatePasswordHandler = () => {
     // setPasswordIsValid(enteredPassword.trim().length > 6);
-    dispatchPassword({type: 'INPUT_BLUR'});
+    dispatchPassword({ type: "INPUT_BLUR" });
   };
 
   const submitHandler = (event) => {
     event.preventDefault();
+    if (formIsValid) {
     ctx.onLogin(emailState.value, passwordState.value);
+    } else if (!emailIsValid) {
+      emailInputRef.current.focus();
+    } else {
+      pwdInputRef.current.focus();
+    }
   };
 
   return (
     <Card className={classes.login}>
       <form onSubmit={submitHandler}>
-        <div
-          className={`${classes.control} ${
-            emailState.isValid === false ? classes.invalid : ''
-          }`}
-        >
-          <label htmlFor="email">E-Mail</label>
-          <input
-            type="email"
-            id="email"
-            value={emailState.value}
-            onChange={emailChangeHandler}
-            onBlur={validateEmailHandler}
-          />
-        </div>
-        <div
-          className={`${classes.control} ${
-            passwordState.isValid === false ? classes.invalid : ''
-          }`}
-        >
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            value={passwordState.value}
-            onChange={passwordChangeHandler}
-            onBlur={validatePasswordHandler}
-          />
-        </div>
+        <Input
+          ref={emailInputRef}
+          id="email"
+          label="E-mail"
+          type="email"
+          isValid={emailIsValid}
+          value={emailState.value}
+          onChange={emailChangeHandler}
+          onBlur={validateEmailHandler}
+        />
+        <Input
+          ref={pwdInputRef}
+          id="password"
+          label="Password"
+          type="password"
+          isValid={passwordIsValid}
+          value={passwordState.value}
+          onChange={passwordChangeHandler}
+          onBlur={validatePasswordHandler}
+        />
         <div className={classes.actions}>
-          <Button type="submit" className={classes.btn} disabled={!formIsValid}>
+          <Button type="submit" className={classes.btn}>
             Login
           </Button>
         </div>
