@@ -94,3 +94,9 @@ independent from React and your components, it doesn't change
 When you need to handle more complicated state which has multiple ways of changing or got multiple 
 dependencies instead of single variables (like we do with useState) then we go for useReducer.
 
+# Context API
+
+When you have to drill props through components which doesn’t even need those props just so that you can
+get those props to their children or beyond who in actuality need them. This becomes unmanageable as the
+application grows, so to mitigate this unwanted props drilling we have got component-wide, “behind the
+scenes” State storage, build into React. It is called React-Context. 
