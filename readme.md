@@ -100,3 +100,11 @@ When you have to drill props through components which doesn’t even need those 
 get those props to their children or beyond who in actuality need them. This becomes unmanageable as the
 application grows, so to mitigate this unwanted props drilling we have got component-wide, “behind the
 scenes” State storage, build into React. It is called React-Context. 
+We saw how context API can be used to maintain a state, so here we made a distinction between passing
+configuration down the component via props and tapping in to the application state via useContext hook.
+Hence, not all communication via props (and small props chains) needs to be converted to context API
+state, only those which are a part of state and are involved in long props drilling chains.
+
+Note: React Context is not optimized for high frequency changes. So if you want to maintain a state which
+is changing too often per second then Context API is not a good option. For this type of changes Redux is
+a better option.
